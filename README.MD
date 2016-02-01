@@ -16,7 +16,7 @@ You will need to have the `dnvm` command available on your system.
 
 If you don't have it installed, [follow this giude](http://docs.asp.net/en/latest/getting-started/installing-on-windows.html "Right now").
 
-* Go to the `src` directory
+* Go to the `src/ServiceQuality` directory
 * Run the command: `dnx ef database update`
 
 You'll see the following as it generates the database.
