@@ -50,9 +50,21 @@ namespace ServiceQuality
                 .AddDbContext<ApplicationDbContext>(options =>
                     options.UseSqlServer(Configuration["Data:DefaultConnection:ConnectionString"]));
 
+            services.AddEntityFramework()
+                .AddSqlServer()
+                .AddDbContext<ServiceDbContext>(options =>
+                    options.UseSqlServer(Configuration["Data:DefaultConnection:ConnectionString"]));
+
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            //services.AddIdentity<Service, Result>()
+            //    .AddEntityFrameworkStores<ServiceDbContext>()
+            //    .AddDefaultTokenProviders();
+
+            //services.AddScoped<Service, Result>();
+            services.AddScoped<ServiceDbContext>();
 
             services.AddMvc();
 

@@ -31,5 +31,9 @@ namespace ServiceQuality.Models
 
         public virtual ICollection<Result> Results { get; set; }
 
+        public Service()
+        {
+            Results = new List<Result>();
+        }
     }
 }

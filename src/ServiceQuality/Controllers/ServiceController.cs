@@ -6,14 +6,16 @@ using ServiceQuality.Models;
 using System.Threading;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
+using System;
 
 namespace ServiceQuality.Controllers
 {
     public class ServiceController : Controller
     {
-        private ApplicationDbContext _context;
+        private ServiceDbContext _context;
 
-        public ServiceController(ApplicationDbContext context)
+        public ServiceController(ServiceDbContext context)
         {
             _context = context;
         }
@@ -50,7 +52,7 @@ namespace ServiceQuality.Controllers
         // POST: Service/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Service service, string type)
+        public async Task<IActionResult> Create(Service service, string type)
         {
             if (type != null && (type.Equals("Capacity") || type.Equals("Distribution")))
             {
@@ -72,57 +74,122 @@ namespace ServiceQuality.Controllers
             return View(service);
         }
 
-        private void MakeRequests(Service service)
+        async private void MakeRequests(Service service)
+        {
+            var _httpClient = new HttpClient();
+            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml,application/xml");
+            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Encoding", "gzip, deflate");
+            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0");
+            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Charset", "ISO-8859-1");
+
+            int[] intArray = Enumerable.Range(0, service.Requests).ToArray();
+
+            int finished = 0;
+
+            var result = new Result();
+
+            result.Start = new DateTime();
+
+            _context.Results.Add(result);
+            service.Results.Add(result);
+
+            var results = intArray
+                .Select(async t =>
+                {
+
+                    using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, service.Url))
+                    {
+
+                        try
+                        {
+
+                            var response = await _httpClient.SendAsync(requestMessage);
+                            var responseContent = await response.Content.ReadAsStringAsync();
+
+                            // check that it succeeded
+                            finished += 1;
+
+                            if (finished == service.Requests)
+                            {
+                                service.Success = true;
+                                result.End = new DateTime();
+                                _context.SaveChanges();
+                                _context.Dispose();
+                            }
+
+                            if (t == service.Requests)
+                            {
+                                result.End = new DateTime();
+                                result.SucessfullRequests = finished;
+                                _context.SaveChanges();
+                                _context.Dispose();
+                            }
+
+                            return responseContent;
+                        }
+                        catch (Exception ex)
+                        {
+                            throw ex;
+                        }
+                    }
+                });
+
+            Task.WaitAll(results.ToArray());
+        }
+
+        async private void MakeRequestsOld(Service service)
         {
             // skips execution of rough code below
-            return;
+            //return;
 
             // TODO: Make web service requests
             // Create a new thread to run the requests
 
-            new Thread(async () =>
+            int finishedRequests = 0;
+
+            var client = new HttpClient();
+            client.Timeout = new System.TimeSpan(30000); // 30 secs
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml,application/xml");
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Encoding", "gzip, deflate");
+            client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0");
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Charset", "ISO-8859-1");
+
+
+            // create a loop here
+            // for (int i = 0; i < service.Requests; i++)
+
+            var results = new Result();
+            results.Start = new System.DateTime();
+
+            using (HttpResponseMessage response = await client.GetAsync(service.Url))
             {
-                int finishedRequests = 0;
 
-                using (var client = new HttpClient())
+                if (response.StatusCode == HttpStatusCode.OK) // 200 status code
                 {
-                    client.Timeout = new System.TimeSpan(30000); // 30 secs
+                    finishedRequests++;
 
-                    // create a loop here
-                    // for (int i = 0; i < service.Requests; i++)
-
-                    var results = new Result();
-                    results.Start = new System.DateTime();
-
-                    using (HttpResponseMessage response = await client.GetAsync(service.Url))
+                    // When the requests are the same as the required ones save to the db?
+                    if (finishedRequests == service.Requests)
                     {
+                        //using (var db = new ServiceDbContext(null))
+                        //{
+                        //    service.Success = true;
+                        //    results.End = new System.DateTime();
 
-                        if (response.StatusCode == HttpStatusCode.OK) // 200 status code
-                        {
-                            finishedRequests++;
+                        //    if (service.Type.Equals("Capacity"))
+                        //    {
+                        //        results.SucessfullRequests = finishedRequests;
+                        //    }
 
-                            // When the requests are the same as the required ones save to the db?
-                            if (finishedRequests == service.Requests)
-                            {
-                                using (var db = new ApplicationDbContext())
-                                {
-                                    service.Success = true;
-                                    results.End = new System.DateTime();
+                        //    service.Results.Add(results);
 
-                                    if (service.Type.Equals("Capacity"))
-                                    {
-                                        results.SucessfullRequests = finishedRequests;
-                                    }
-
-                                    service.Results.Add(results);
-
-                                    db.SaveChanges();
-                                }
-                            }
-                        }
+                        //    db.SaveChanges();
+                        //}
                     }
                 }
-            });
+            }
+
+            client.Dispose();
         }
 
         // GET: Service/Edit/5
