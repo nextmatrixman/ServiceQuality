@@ -74,55 +74,7 @@ namespace ServiceQuality.Controllers
 
         private void MakeRequests(Service service)
         {
-            // skips execution of rough code below
-            return;
 
-            // TODO: Make web service requests
-            // Create a new thread to run the requests
-
-            new Thread(async () =>
-            {
-                int finishedRequests = 0;
-
-                using (var client = new HttpClient())
-                {
-                    client.Timeout = new System.TimeSpan(30000); // 30 secs
-
-                    // create a loop here
-                    // for (int i = 0; i < service.Requests; i++)
-
-                    var results = new Result();
-                    results.Start = new System.DateTime();
-
-                    using (HttpResponseMessage response = await client.GetAsync(service.Url))
-                    {
-
-                        if (response.StatusCode == HttpStatusCode.OK) // 200 status code
-                        {
-                            finishedRequests++;
-
-                            // When the requests are the same as the required ones save to the db?
-                            if (finishedRequests == service.Requests)
-                            {
-                                using (var db = new ApplicationDbContext())
-                                {
-                                    service.Success = true;
-                                    results.End = new System.DateTime();
-
-                                    if (service.Type.Equals("Capacity"))
-                                    {
-                                        results.SucessfullRequests = finishedRequests;
-                                    }
-
-                                    service.Results.Add(results);
-
-                                    db.SaveChanges();
-                                }
-                            }
-                        }
-                    }
-                }
-            });
         }
 
         // GET: Service/Edit/5
