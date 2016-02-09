@@ -6,6 +6,10 @@ using ServiceQuality.Models;
 using System.Threading;
 using System.Net;
 using System.Net.Http;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System;
+using Newtonsoft.Json;
 
 namespace ServiceQuality.Controllers
 {
@@ -32,13 +36,34 @@ namespace ServiceQuality.Controllers
                 return HttpNotFound();
             }
 
-            Service service = _context.Services.Single(m => m.Id == id);
+            Service service = _context.Services.Include(s => s.Results).Single(m => m.Id == id);
+            service.Results = service.Results.OrderBy(r => r.Order).ToList();
+
             if (service == null)
             {
                 return HttpNotFound();
             }
 
             return View(service);
+        }
+
+        [ActionName("Json")]
+        public IActionResult Json(int id)
+        {
+            Service service = _context.Services.Include(s => s.Results).Single(m => m.Id == id);
+            service.Results = service.Results.OrderBy(r => r.Order).ToList();
+
+            if (service == null)
+            {
+                return HttpNotFound();
+            }
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
+            return Json(service, jsonSerializerSettings);
         }
 
         // GET: Service/Create
@@ -50,7 +75,7 @@ namespace ServiceQuality.Controllers
         // POST: Service/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Service service, string type)
+        public async Task<IActionResult> Create(Service service, string type)
         {
             if (type != null && (type.Equals("Capacity") || type.Equals("Distribution")))
             {
@@ -72,9 +97,66 @@ namespace ServiceQuality.Controllers
             return View(service);
         }
 
-        private void MakeRequests(Service service)
+        private async void MakeRequests(Service service)
         {
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml,application/xml");
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Encoding", "gzip, deflate");
+            client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0");
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Charset", "ISO-8859-1");
 
+            var finishedResults = new List<Result>();
+
+            int[] intArray = Enumerable.Range(0, service.Requests).ToArray();
+
+            var results = intArray
+                .Select(async t =>
+                {
+                    using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, service.Url))
+                    {
+                        try
+                        {
+                            var result = new Result();
+                            result.Service = service;
+                            result.Start = DateTime.Now;
+                            result.Order = t;
+
+                            _context.Results.Add(result);
+                            _context.SaveChanges();
+
+                            var response = await client.SendAsync(requestMessage);
+                            var responseContent = await response.Content.ReadAsStringAsync();
+
+                            if (response.StatusCode == HttpStatusCode.OK)
+                            {
+                                result.End = DateTime.Now;
+                                finishedResults.Add(result);
+                                _context.SaveChanges();
+                            }
+
+                            return result.Id;
+                        }
+                        catch (Exception ex)
+                        {
+                            //throw ex;
+                            return 0;
+                        }
+                    }
+                });
+
+            try
+            {
+                Task.WaitAll(results.ToArray());
+            } catch (Exception e)
+            {
+                //View(e);
+            }
+
+            //Thread.Sleep(5000);
+
+            service.Success = finishedResults.Count == service.Requests;
+            _context.SaveChanges();
+            //_context.Dispose();
         }
 
         // GET: Service/Edit/5

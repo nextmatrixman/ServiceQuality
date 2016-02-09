@@ -17,6 +17,12 @@
             @Html.DisplayFor(model => model.Name)
         </dd>
         <dt>
+            @Html.DisplayNameFor(model => model.Type)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Type)
+        </dd>
+        <dt>
             @Html.DisplayNameFor(model => model.Requests)
         </dt>
         <dd>
@@ -35,6 +41,23 @@
             @Html.DisplayFor(model => model.Url)
         </dd>
     </dl>
+</div>
+<div>
+    Results: @Html.DisplayFor(model => model.Results.Count)
+
+    <ol>
+        @foreach (var r in Model.Results)
+        {
+            @if (r.End > r.Start)
+            {
+                <li>@r.Duration</li>
+            } else
+            {
+                <li>Error</li>
+
+            }
+        }
+    </ol>
 </div>
 <p>
     <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
