@@ -4,7 +4,7 @@ using Microsoft.Data.Entity.Migrations;
 
 namespace ServiceQuality.Migrations
 {
-    public partial class services_type : Migration
+    public partial class ImprovesServiceandResultentities : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,11 +13,12 @@ namespace ServiceQuality.Migrations
             migrationBuilder.DropForeignKey(name: "FK_IdentityUserLogin<string>_ApplicationUser_UserId", table: "AspNetUserLogins");
             migrationBuilder.DropForeignKey(name: "FK_IdentityUserRole<string>_IdentityRole_RoleId", table: "AspNetUserRoles");
             migrationBuilder.DropForeignKey(name: "FK_IdentityUserRole<string>_ApplicationUser_UserId", table: "AspNetUserRoles");
-            migrationBuilder.AddColumn<string>(
-                name: "Type",
-                table: "Service",
+            migrationBuilder.DropColumn(name: "SucessfullRequests", table: "Result");
+            migrationBuilder.AddColumn<int>(
+                name: "Order",
+                table: "Result",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: 0);
             migrationBuilder.AddForeignKey(
                 name: "FK_IdentityRoleClaim<string>_IdentityRole_RoleId",
                 table: "AspNetRoleClaims",
@@ -62,7 +63,12 @@ namespace ServiceQuality.Migrations
             migrationBuilder.DropForeignKey(name: "FK_IdentityUserLogin<string>_ApplicationUser_UserId", table: "AspNetUserLogins");
             migrationBuilder.DropForeignKey(name: "FK_IdentityUserRole<string>_IdentityRole_RoleId", table: "AspNetUserRoles");
             migrationBuilder.DropForeignKey(name: "FK_IdentityUserRole<string>_ApplicationUser_UserId", table: "AspNetUserRoles");
-            migrationBuilder.DropColumn(name: "Type", table: "Service");
+            migrationBuilder.DropColumn(name: "Order", table: "Result");
+            migrationBuilder.AddColumn<int>(
+                name: "SucessfullRequests",
+                table: "Result",
+                nullable: false,
+                defaultValue: 0);
             migrationBuilder.AddForeignKey(
                 name: "FK_IdentityRoleClaim<string>_IdentityRole_RoleId",
                 table: "AspNetRoleClaims",
