@@ -6,7 +6,7 @@
 
 <h2>Create</h2>
 
-<form asp-action="Create">
+<form asp-action="Create" id="create-form">
     <div class="form-horizontal">
         <h4>Service</h4>
         <hr />
@@ -43,7 +43,7 @@
         </div>
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
+                <input id="submit" type="submit" value="Create" class="btn btn-default" />
             </div>
         </div>
     </div>
@@ -58,3 +58,19 @@
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 }
+
+<script type="text/javascript">
+    //$('.submit').on('click', function (e) {
+
+    //    if ($('create-form').is('valid')) {
+
+
+    //    }
+
+    //    e.preventDefault();
+
+    //    $.post('/Service/Create', $('create-form').serialize());
+
+    //    document.location = '/';
+    //});
+</script>

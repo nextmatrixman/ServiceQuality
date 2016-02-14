@@ -60,7 +60,7 @@ namespace ServiceQuality.Controllers
             var jsonSerializerSettings = new JsonSerializerSettings
             {
                 PreserveReferencesHandling = PreserveReferencesHandling.Objects,
-                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             };
 
             return Json(service, jsonSerializerSettings);
@@ -75,11 +75,11 @@ namespace ServiceQuality.Controllers
         // POST: Service/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Service service, string type)
+        public async Task<IActionResult> Create(Service service)
         {
-            if (type != null && (type.Equals("Capacity") || type.Equals("Distribution")))
+            if (!service.HasValidType())
             {
-                service.Type = type;
+                return View(service);
             }
 
             if (ModelState.IsValid)
@@ -89,7 +89,13 @@ namespace ServiceQuality.Controllers
                 _context.Services.Add(service);
                 _context.SaveChanges();
 
-                MakeRequests(service);
+                if (service.Type.Equals("Capacity"))
+                {
+                    MakeCapacityRequests(service);
+                } else if (service.Type.Equals("Distribution"))
+                {
+                    MakeDistributionRequests(service);
+                }
 
                 return RedirectToAction("Index");
             }
@@ -97,7 +103,55 @@ namespace ServiceQuality.Controllers
             return View(service);
         }
 
-        private async void MakeRequests(Service service)
+        private void MakeCapacityRequests(Service service)
+        {
+            for (int i = 0; i < service.Requests; i += 1)
+            {
+                var client = new HttpClient();
+                client.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml,application/xml");
+                client.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Encoding", "gzip, deflate");
+                client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0");
+                client.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Charset", "ISO-8859-1");
+
+                using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, service.Url))
+                {
+                    try
+                    {
+                        var result = new Result();
+                        result.Service = service;
+                        result.Start = DateTime.Now;
+                        result.Order = i + 1;
+
+                        _context.Results.Add(result);
+                        _context.SaveChanges();
+
+                        var response = client.SendAsync(requestMessage).Result;
+                        //var responseContent = await response.Content.ReadAsStringAsync();
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            if (i == service.Requests - 1)
+                            {
+                                service.Success = true;
+                            }
+
+                            result.End = DateTime.Now;
+                            _context.SaveChanges();
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        //throw ex;
+                    }
+                }
+
+                client.Dispose();
+            }
+        }
+
+        // Todo: Distribution needs a few more changes
+        private void MakeDistributionRequests(Service service)
         {
             var client = new HttpClient();
             client.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml,application/xml");
@@ -110,7 +164,7 @@ namespace ServiceQuality.Controllers
             int[] intArray = Enumerable.Range(0, service.Requests).ToArray();
 
             var results = intArray
-                .Select(async t =>
+                .Select(t =>
                 {
                     using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, service.Url))
                     {
@@ -124,22 +178,22 @@ namespace ServiceQuality.Controllers
                             _context.Results.Add(result);
                             _context.SaveChanges();
 
-                            var response = await client.SendAsync(requestMessage);
-                            var responseContent = await response.Content.ReadAsStringAsync();
+                            var response = client.SendAsync(requestMessage).Result;
+                            //var responseContent = response.Content.ReadAsStringAsync().Result;
 
-                            if (response.StatusCode == HttpStatusCode.OK)
+                            if (response.IsSuccessStatusCode)
                             {
                                 result.End = DateTime.Now;
                                 finishedResults.Add(result);
                                 _context.SaveChanges();
                             }
 
-                            return result.Id;
+                            return Task.FromResult(result.Id);
                         }
                         catch (Exception ex)
                         {
                             //throw ex;
-                            return 0;
+                            return Task.FromResult(0);
                         }
                     }
                 });
@@ -212,7 +266,11 @@ namespace ServiceQuality.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            Service service = _context.Services.Single(m => m.Id == id);
+            Service service = _context.Services.Include(s => s.Results).Single(m => m.Id == id);
+
+            var r = service.Results.ToList();
+            r.ForEach(x => _context.Results.Remove(x));
+
             _context.Services.Remove(service);
             _context.SaveChanges();
             return RedirectToAction("Index");

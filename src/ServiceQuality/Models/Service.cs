@@ -13,7 +13,7 @@ namespace ServiceQuality.Models
         public int Id { get; set; }
 
         [Required(AllowEmptyStrings = false)]
-        public string Type;
+        public string Type { get; set; }
 
         [Required(AllowEmptyStrings = false)]
         public string Name { get; set; }
@@ -34,6 +34,11 @@ namespace ServiceQuality.Models
         public Service()
         {
             Results = new List<Result>();
+        }
+
+        public bool HasValidType()
+        {
+            return Type != null && (Type.Equals("Capacity") || Type.Equals("Distribution"));
         }
     }
 }
