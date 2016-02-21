@@ -15,9 +15,9 @@ namespace ServiceQuality.Controllers
 {
     public class ServiceController : Controller
     {
-        private ServiceDbContext _context;
+        private ApplicationDbContext _context;
 
-        public ServiceController(ServiceDbContext context)
+        public ServiceController(ApplicationDbContext context)
         {
             _context = context;
         }
