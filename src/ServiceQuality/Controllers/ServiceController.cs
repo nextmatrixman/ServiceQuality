@@ -89,18 +89,31 @@ namespace ServiceQuality.Controllers
                 _context.Services.Add(service);
                 _context.SaveChanges();
 
-                if (service.Type.Equals("Capacity"))
-                {
-                    MakeCapacityRequests(service);
-                } else if (service.Type.Equals("Distribution"))
-                {
-                    MakeDistributionRequests(service);
-                }
-
-                return RedirectToAction("Index");
+                return RedirectToAction("Details", new { id = service.Id });
             }
 
             return View(service);
+        }
+
+        [ActionName("RunTest")]
+        public void RunTest(int id)
+        {
+            Service service = _context.Services.Include(s => s.Results).Single(m => m.Id == id);
+            service.Results = service.Results.OrderBy(r => r.Order).ToList();
+
+            if (service == null)
+            {
+                return;
+            }
+
+            if (service.Type.Equals("Capacity"))
+            {
+                MakeCapacityRequests(service);
+            }
+            else if (service.Type.Equals("Distribution"))
+            {
+                MakeDistributionRequests(service);
+            }
         }
 
         private void MakeCapacityRequests(Service service)
@@ -124,6 +137,9 @@ namespace ServiceQuality.Controllers
 
                         _context.Results.Add(result);
                         _context.SaveChanges();
+
+                        // WORKAROUND TO EXCEPTION ISSUE
+                        //Thread.Sleep(500);
 
                         var response = client.SendAsync(requestMessage).Result;
                         //var responseContent = await response.Content.ReadAsStringAsync();

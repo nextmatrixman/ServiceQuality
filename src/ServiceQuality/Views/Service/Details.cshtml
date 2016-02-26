@@ -42,10 +42,15 @@
         </dd>
     </dl>
 </div>
+
+<div>
+    <a href="@String.Format("/Service/RunTest/{0}", Model.Id)" class="btn btn-primary">Run Test</a>
+</div>
+
+<!-- Insert angular here -->
+
 <div>
     <p>Results: @Html.DisplayFor(model => model.Results.Count)</p>
-    <p><a href="@String.Format("/Service/Json/{0}", Model.Id)" class="btn btn-primary">View JSON</a></p>
-
 
     <table class="table table-striped">
         <thead>
@@ -76,6 +81,7 @@
     </table>
 </div>
 <p>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> | 
+    <a asp-action="Index">Back to List</a>&nbsp;&nbsp;&nbsp;
+    <a href="@String.Format("/Service/Json/{0}", Model.Id)" class="btn btn-primary">View JSON</a>
 </p>
