@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html ng-app="app">
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+		<link rel="stylesheet" href="css/angular-chart.css" type="text/css" />
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.js"></script>
+		<script src="js/angular-chart.js"></script>
+    <script src="js/raphael-2.1.4.min.js"></script>
+    <script src="js/justgage.js"></script>
+    <script src="js/ng-justgage.js"></script>
+    <script src="js/index.js"></script>
+    <title>Service Performance</title>
+	</head>
+	<body ng-controller="AppCtrl">
+		<div class="container">
+			<h1>Service Performance</h1>
+			<hr />
+			<div class="row">
+				<div class="col-md-8">
+					Test Number: 
+					<input type='text' size='5' ng-model='testNumber' name='testNumber' />&nbsp;&nbsp;
+					<button class="btn btn-primary" ng-click="start()">Start</button>&nbsp;&nbsp;
+					<button class="btn btn-danger" ng-click="stop()">Stop</button>&nbsp;&nbsp;&nbsp;&nbsp;
+					Distribution Base:
+					<input type='text' size='5' ng-model='distributionBase' name='distributionBase' />&nbsp;&nbsp;
+					<button class="btn btn-primary" ng-click="call('full')">Statistics</button>
+				</div>
+			</div>
+			<h3>Test <small>{{testurl}}</small></h3>
+			<div class="row">
+				<div class="col-md-3">
+					<div just-gage class="gauge" id="test" min=0 max=gaugeLimit value="valueGauge" decimals=1 title="Performance" donut=false relative-gauge-size=true symbol="ms"></div>
+				</div>
+				<div class="col-md-8">
+					<canvas id="line" class="chart chart-line" chart-data="performanceData" chart-labels="performanceLabels" chart-legend="true" chart-series="performanceSeries" chart-click="onClick"></canvas> 
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-8">
+					<p><strong>Avg. Performance: </strong>{{avgPerformance}} ms</p>
+					<p><strong>Capacity: </strong>{{capacity}} requests</p>
+					<p><strong>Reliability: </strong>{{reliability}} ms</p>
+					<p>
+						<div><strong>Distribution:</div><br />
+						<div class="col-md-8">
+							<canvas id="line" class="chart chart-line" chart-data="distributionData" chart-labels="distributionLabels" chart-legend="true" chart-series="distributionSeries" chart-click="onClick"></canvas>
+						</div>
+					</p>
+				</div>
+			</div>
+		</div><br /><br /><br />
+		<p align="center">Copyright &copy; 2016 CSULA CS 594 Group 3</p><br /><br /><br />
+	</body>
+</html>
