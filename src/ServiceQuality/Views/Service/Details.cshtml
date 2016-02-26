@@ -1,13 +1,13 @@
 @model ServiceQuality.Models.Service
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Service Performance";
 }
 
-<h2>Details</h2>
+<h2>Service Performance</h2>
 
 <div>
-    <h4>Service</h4>
+    <h4>Tests</h4>
     <hr />
     <dl class="dl-horizontal">
         <dt>
@@ -43,43 +43,77 @@
     </dl>
 </div>
 
-<div>
-    <a href="@String.Format("/Service/RunTest/{0}", Model.Id)" class="btn btn-primary">Run Test</a>
-</div>
 
 <!-- Insert angular here -->
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
 
-<div>
-    <p>Results: @Html.DisplayFor(model => model.Results.Count)</p>
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/css/angular-chart.css" type="text/css" />
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Duration</th>
-            </tr>
-        </thead>
-        @foreach (var r in Model.Results)
-        {
-            <tr>
-                <td>@r.Order</td>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.js"></script>
+<script src="/js/angular-chart.js"></script>
+<script src="/js/raphael-2.1.4.min.js"></script>
+<script src="/js/justgage.js"></script>
+<script src="/js/ng-justgage.js"></script>
+<script src="/js/index.js"></script>
 
-                @if (!r.Duration.Equals("-1"))
+<script>
+// Service MODEL ID as part of the global window object
+window.MODEL_ID = @String.Format("{0}", Model.Id);
+</script>
+
+<div ng-controller="AppCtrl">
+	<div class="container">
+		<div class="row">
+			@if (Model.Results.Count == 0) {
+				<div ng-show="!showRunButton" >
+					<hr />
+					<button ng-click="runTest()" class="btn btn-primary">Begin Service Test</button>
+				</div>
+			}
+			<div class="col-md-8">
+				<hr />
+				<h3>Graph</h3>
+				<button class="btn btn-primary" ng-click="start()">Start</button>
+				<button class="btn btn-danger" ng-click="stop()">Stop</button>
+				
+				@if (Model.Type == "Distribution")
                 {
-                    <td>@r.Start.ToString("MM/dd/yyyy hh:mm:ss.ffff tt")</td>
-                    <td>@r.End.ToString("MM/dd/yyyy hh:mm:ss.ffff tt")</td>
-                    <td>@r.Duration</td>
+                    <span>
+
+                        Distribution Base:
+                        <input type='text' size='5' ng-model='distributionBase' name='distributionBase' />&nbsp;&nbsp;
+                    </span>
                 }
-                else
-                {
-                    <td colspan="3">Error</td>
-                }
-            </tr>
-        }
-    </table>
+
+				<button class="btn btn-primary" ng-click="call('full')">Statistics</button>
+			</div>
+		</div>
+		<h3>Test <small>{{testurl}}</small></h3>
+		<div class="row">
+			<div class="col-md-3">
+				<div just-gage class="gauge" id="test" min=0 max=gaugeLimit value="valueGauge" decimals=1 title="Performance" donut=false relative-gauge-size=true symbol="ms"></div>
+			</div>
+			<div class="col-md-8">
+				<canvas id="line" class="chart chart-line" chart-data="performanceData" chart-labels="performanceLabels" chart-legend="true" chart-series="performanceSeries" chart-click="onClick"></canvas> 
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-8">
+				<p><strong>Avg. Performance: </strong>{{avgPerformance}} ms</p>
+				<p><strong>Capacity: </strong>{{capacity}} requests</p>
+				<p><strong>Reliability: </strong>{{reliability}} ms</p>
+				<p>
+					<div><strong>Distribution:</div><br />
+					<div class="col-md-8">
+						<canvas id="line" class="chart chart-line" chart-data="distributionData" chart-labels="distributionLabels" chart-legend="true" chart-series="distributionSeries" chart-click="onClick"></canvas>
+					</div>
+				</p>
+			</div>
+		</div>
+	</div>
 </div>
+
 <p>
     <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> | 
     <a asp-action="Index">Back to List</a>&nbsp;&nbsp;&nbsp;
