@@ -50,20 +50,28 @@ namespace ServiceQuality.Controllers
         [ActionName("Json")]
         public IActionResult Json(int id)
         {
-            Service service = _context.Services.Include(s => s.Results).Single(m => m.Id == id);
-            service.Results = service.Results.OrderBy(r => r.Order).ToList();
-
-            if (service == null)
+            try
             {
-                return HttpNotFound();
+                Service service = _context.Services.Include(s => s.Results).Single(m => m.Id == id);
+                service.Results = service.Results.OrderBy(r => r.Order).ToList();
+
+                if (service == null)
+                {
+                    return HttpNotFound();
+                }
+                var jsonSerializerSettings = new JsonSerializerSettings
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                };
+
+                return Json(service, jsonSerializerSettings);
             }
-            var jsonSerializerSettings = new JsonSerializerSettings
+            catch (Exception e)
             {
-                PreserveReferencesHandling = PreserveReferencesHandling.Objects,
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            };
+                return Json(null);
+            }
 
-            return Json(service, jsonSerializerSettings);
         }
 
         // GET: Service/Create
@@ -101,7 +109,7 @@ namespace ServiceQuality.Controllers
             Service service = _context.Services.Include(s => s.Results).Single(m => m.Id == id);
             service.Results = service.Results.OrderBy(r => r.Order).ToList();
 
-            if (service == null)
+            if (service == null || service.Results.Count > 0)
             {
                 return;
             }

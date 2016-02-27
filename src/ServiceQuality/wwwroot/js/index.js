@@ -1,4 +1,4 @@
-angular.module('app', ['charts.ng.justgage', 'chart.js']).controller('AppCtrl', ['$scope', '$interval', '$http', function ($scope, $interval, $http) {
+angular.module('app', ['charts.ng.justgage', 'chart.js']).controller('AppCtrl', ['$scope', '$interval', '$http', '$window', function ($scope, $interval, $http, $window) {
 	$scope.performanceLabels = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'];
   $scope.performanceSeries = ['Performance (ms)'];
   $scope.performanceData = [[]];
@@ -22,12 +22,15 @@ angular.module('app', ['charts.ng.justgage', 'chart.js']).controller('AppCtrl', 
 
 		return parseFloat(sum/limit).toFixed(1);
 	}
+	
+	$scope.runTest = function () {
+		$scope.showRunButton = true;
+		$http.get("/Service/RunTest/" + $window.MODEL_ID).success(function () {});
+		$scope.start();
+	};
 
 	$scope.call = function (full) {
-		if (!$scope.testNumber)
-			$scope.testNumber = 1;
-
-		$http.get("http://localhost:50145/Service/Json/" + $scope.testNumber)
+		$http.get("/Service/Json/" + $window.MODEL_ID)
     	.success(function (response) {
     		// response time received
         var res = response.Results;
