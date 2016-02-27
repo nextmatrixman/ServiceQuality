@@ -28,6 +28,25 @@ namespace ServiceQuality.Controllers
             return View(_context.Services.ToList());
         }
 
+        public JsonResult GetServiceDescription(string wsdl_url)
+        {
+            var urls = new List<string>();
+            //System.Web.Services.Description.ServiceDescription myDescription =
+            //    System.Web.Services.Description.ServiceDescription.Read(wsdl_url);
+
+            //// Get the ServiceCollection of the ServiceDescription.
+            //System.Web.Services.Description.ServiceCollection myServiceCollection = myDescription.Services;
+            //for(int i = 0; i < myServiceCollection.Count; i++)
+            //{
+            //    urls.Add(myServiceCollection[i].ServiceDescription.RetrievalUrl);
+            //}
+
+            urls.Add("a service url 1");
+            urls.Add("a service url 2");
+
+            return new JsonResult(urls); 
+        }
+
         // GET: Service/Details/5
         public IActionResult Details(int? id)
         {

@@ -19,11 +19,20 @@
             </div>
         </div>
         <div class="form-group">
+            <label class="col-md-2 control-label">WSDL URL</label>
+            <div class="col-md-10">
+                <input id="wsdl_url" class="form-control" />
+                <button class="btn btn-default" type="button" id="service_update">Update List</button>
+            </div>
+        </div>
+        <div class="form-group">
             <label asp-for="Url" class="col-md-2 control-label">Web Service URL</label>
             <div class="col-md-10">
-                <input asp-for="Url" class="form-control" />
+                <select asp-for="Url" class="form-control">
+                </select>
                 <span asp-validation-for="Url" class="text-danger" />
             </div>
+            
         </div>
         <div class="form-group">
             <label asp-for="Requests" class="col-md-2 control-label">Requests To Make</label>
@@ -57,20 +66,23 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-}
-
-<script type="text/javascript">
-    //$('.submit').on('click', function (e) {
-
-    //    if ($('create-form').is('valid')) {
-
-
-    //    }
-
-    //    e.preventDefault();
-
-    //    $.post('/Service/Create', $('create-form').serialize());
-
-    //    document.location = '/';
-    //});
+    
+    <script type="text/javascript">
+    $('#service_update').click(function (e) {
+        $.ajax({
+            type: 'GET',
+            url: '/Service/GetServiceDescription/?wsdl_url=' + wsdl_url.value,
+            success: function (data) {
+                $.each(data, function (index, value) {
+                    $('#Url').append($('<option/>', {
+                        value: value,
+                        text: value
+                    }));
+                });
+            },
+            traditional: true
+        });
+        
+    });
 </script>
+}
