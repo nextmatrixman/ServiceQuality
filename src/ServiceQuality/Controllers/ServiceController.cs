@@ -286,12 +286,12 @@ namespace ServiceQuality.Controllers
                             var response = client.SendAsync(requestMessage).Result;
                             //var responseContent = response.Content.ReadAsStringAsync().Result;
 
-                            if (response.IsSuccessStatusCode)
-                            {
+                            //if (response.IsSuccessStatusCode)
+                            //{
                                 result.End = DateTime.Now;
                                 finishedResults.Add(result);
                                 _context.SaveChanges();
-                            }
+                            //}
 
                             return Task.FromResult(result.Id);
                         }
