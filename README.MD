@@ -42,7 +42,7 @@ You'll see a "Create" link near the top, so create a new service.
 
 Start modifying the `ServiceController` and anything else!
 
-## To use the App
+## Use the App
 After you get it running...
 
 1. On the Index page, click "Craete New".
