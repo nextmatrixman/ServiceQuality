@@ -35,7 +35,7 @@
             @Html.DisplayFor(model => model.Success)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Url)
+            Service
         </dt>
         <dd>
             @Html.DisplayFor(model => model.Url)
@@ -104,7 +104,7 @@ window.MODEL_ID = @String.Format("{0}", Model.Id);
 				<p><strong>Capacity: </strong>{{capacity}} requests</p>
 				<p><strong>Reliability: </strong>{{reliability}} ms</p>
 				<p>
-					<div><strong>Distribution:</div><br />
+					<div><strong>Distribution:</strong></div><br />
 					<div class="col-md-8">
 						<canvas id="line" class="chart chart-line" chart-data="distributionData" chart-labels="distributionLabels" chart-legend="true" chart-series="distributionSeries" chart-click="onClick"></canvas>
 					</div>
