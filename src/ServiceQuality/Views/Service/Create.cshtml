@@ -19,11 +19,42 @@
             </div>
         </div>
         <div class="form-group">
-            <label asp-for="Url" class="col-md-2 control-label">Web Service URL</label>
+            <label asp-for="Url" class="col-md-2 control-label">WSDL URL</label>
             <div class="col-md-10">
-                <input asp-for="Url" class="form-control" />
+                <p>Examples:</p>
+                <ul>
+                    <li>http://wsf.cdyne.com/WeatherWS/Weather.asmx?WSDL</li>
+                    @*<li>http://webservicex.net/globalweather.asmx?wsdl</li>*@
+                </ul>
+
+                @*http://localhost:50145/Service/GetServiceDescription/?url=http://webservicex.net/globalweather.asmx?wsdl*@
+         
+                <input asp-for="Url" class="form-control" value="" />
                 <span asp-validation-for="Url" class="text-danger" />
             </div>
+
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button class="btn btn-primary" type="button" id="service_update">Update List</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="methodName" class="col-md-2 control-label">Service Methods</label>
+            <div class="col-md-10">
+                <select id="methodName" name="methodName" class="form-control"></select>
+
+                <div class="row">
+                    <div class="col-md-5" id="valueParent" style="display:none">
+                        <label for="methodValue" class="col-md-1 control-label" id="valueName">Value</label>
+                        <input id="methodValue" name="methodValue" class="form-control" />
+                        <input id="methodParam" name="methodParam" value="" style="display:none" />
+                    </div>
+                </div>
+                @*<input id="Url" name="Url" class="form-control" />
+                <span asp-validation-for="Url" class="text-danger" />*@
+            </div>
+            
         </div>
         <div class="form-group">
             <label asp-for="Requests" class="col-md-2 control-label">Requests To Make</label>
@@ -57,20 +88,41 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-}
+    
+    <script type="text/javascript">
+        var wsdlUrl = $('#Url');
+        var url = $('#Url');
 
-<script type="text/javascript">
-    //$('.submit').on('click', function (e) {
+        $('#service_update').click(function (e) {
+            $.ajax({
+                type: 'GET',
+                url: '/Service/GetServiceDescription/?url=' + wsdlUrl.val(),
+                success: function (data) {
+                    $.each(data, function (index, obj) {
+                        //console.log(index, obj);
+                        $('#methodName').append($('<option/>', {
+                            value: obj.Method,
+                            text: obj.Method + (obj.Parameter ? ' - ' + obj.Parameter : ''),
+                        }).data("param", obj.Parameter));
+                    });
 
-    //    if ($('create-form').is('valid')) {
+                    methodName.blur();
+                },
+                traditional: true
+            });
+        
+        });
 
+        var methodName = $('#methodName');
+        methodName.on('change blur', function () {
+            var val = methodName.find('option:selected').data("param");
 
-    //    }
+            //console.log(val);
+            $('#methodParam').val(val);
+            $("#valueParent").toggle(!!val);
+            $("#valueName").text(val || "Value");
 
-    //    e.preventDefault();
+        });
 
-    //    $.post('/Service/Create', $('create-form').serialize());
-
-    //    document.location = '/';
-    //});
 </script>
+}

@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using Newtonsoft.Json;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace ServiceQuality.Controllers
 {
@@ -26,6 +28,80 @@ namespace ServiceQuality.Controllers
         public IActionResult Index()
         {
             return View(_context.Services.ToList());
+        }
+
+        class Operation
+        {
+            public String Type { get; set; }
+            public String Method { get; set; }
+            public String Parameter { get; set; }
+        }
+
+        [ActionName("GetServiceDescription")]
+        public JsonResult GetServiceDescription(String url)
+        {
+            var urls = new List<string>();
+
+            try
+            {
+
+            var x = XDocument.Load(url);
+            XNamespace wsdl = "http://schemas.xmlsoap.org/wsdl/";
+            XNamespace s = "http://www.w3.org/2001/XMLSchema";
+
+            var schema = x.Root
+                .Element(wsdl + "types")
+                .Element(s + "schema");
+
+            var elements = schema.Elements(s + "element"); ;
+
+            Func<XElement, string> getName = el => el.Attribute("name").Value;
+            Func<XElement, string> getType = el => el.Attribute("type").Value.Replace("s:", "");
+
+            var names = from el in elements
+                        let name = getName(el)
+                        where el.HasAttributes
+                            && !name.EndsWith("Response")
+                            && !name.EndsWith("Return")
+                            && !name.StartsWith("Array")
+                            && name.Contains("Get")
+                        select name;
+
+            var d = new List<Operation>();
+
+            foreach (string n in names)
+            {
+                var method = elements.Single(el => getName(el) == n);
+
+                var parameters = from par in method.Descendants(s + "element")
+                                 let name = getName(par)
+                                 let type = getType(par)
+                                 select new Operation { Method = n, Parameter = name, Type = type };
+
+                if (parameters.Count() == 0)
+                {
+                    d.Add(new Operation
+                    {
+                        Method = n
+                    });
+                }
+
+                foreach (Operation o in parameters)
+                {
+                    d.Add(o);
+                }
+
+            }
+                return new JsonResult(d);
+
+            }
+            catch (Exception e)
+            {
+
+            }
+
+            return new JsonResult("");
+
         }
 
         // GET: Service/Details/5
@@ -83,7 +159,7 @@ namespace ServiceQuality.Controllers
         // POST: Service/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Service service)
+        public async Task<IActionResult> Create(Service service, String methodName, String methodParam, String methodValue)
         {
             if (!service.HasValidType())
             {
@@ -93,6 +169,11 @@ namespace ServiceQuality.Controllers
             if (ModelState.IsValid)
             {
                 service.Success = false;
+
+                // http://wsf.cdyne.com/WeatherWS/Weather.asmx/GetCityForecastByZIP?zip=43434
+
+                service.Url = service.Url.Replace("?", "").Replace("WSDL", "");
+                service.Url = service.Url + "/" + methodName + "?" + methodParam + "=" + methodValue;
 
                 _context.Services.Add(service);
                 _context.SaveChanges();
@@ -152,8 +233,8 @@ namespace ServiceQuality.Controllers
                         var response = client.SendAsync(requestMessage).Result;
                         //var responseContent = await response.Content.ReadAsStringAsync();
 
-                        if (response.IsSuccessStatusCode)
-                        {
+                        //if (response.IsSuccessStatusCode)
+                        //{
                             if (i == service.Requests - 1)
                             {
                                 service.Success = true;
@@ -161,7 +242,7 @@ namespace ServiceQuality.Controllers
 
                             result.End = DateTime.Now;
                             _context.SaveChanges();
-                        }
+                        //}
 
                     }
                     catch (Exception ex)
@@ -205,12 +286,12 @@ namespace ServiceQuality.Controllers
                             var response = client.SendAsync(requestMessage).Result;
                             //var responseContent = response.Content.ReadAsStringAsync().Result;
 
-                            if (response.IsSuccessStatusCode)
-                            {
+                            //if (response.IsSuccessStatusCode)
+                            //{
                                 result.End = DateTime.Now;
                                 finishedResults.Add(result);
                                 _context.SaveChanges();
-                            }
+                            //}
 
                             return Task.FromResult(result.Id);
                         }
