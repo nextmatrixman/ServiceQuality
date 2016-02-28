@@ -24,11 +24,19 @@
                 <p>Examples:</p>
                 <ul>
                     <li>http://wsf.cdyne.com/WeatherWS/Weather.asmx?WSDL</li>
-                    @*<li>http://webservicex.net/globalweather.asmx?wsdl</li>*@
+                    <li>https://api.authorize.net/soap/v1/Service.asmx?WSDL</li>
+                    @*
+                        http://localhost:50145/Service/GetServiceDescription/?url=
+                        http://www.webservicex.net/ConvertTorque.asmx?WSDL
+
+                        Multiple Parameters
+                        http://webservicex.net/globalweather.asmx?wsdl
+                        http://www.webservicex.net/ConvertTorque.asmx?WSDL
+                    *@
                 </ul>
 
                 @*http://localhost:50145/Service/GetServiceDescription/?url=http://webservicex.net/globalweather.asmx?wsdl*@
-         
+
                 <input asp-for="Url" class="form-control" value="" />
                 <span asp-validation-for="Url" class="text-danger" />
             </div>
@@ -54,7 +62,7 @@
                 @*<input id="Url" name="Url" class="form-control" />
                 <span asp-validation-for="Url" class="text-danger" />*@
             </div>
-            
+
         </div>
         <div class="form-group">
             <label asp-for="Requests" class="col-md-2 control-label">Requests To Make</label>
@@ -88,7 +96,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-    
+
     <script type="text/javascript">
         var wsdlUrl = $('#Url');
         var url = $('#Url');
@@ -98,6 +106,8 @@
                 type: 'GET',
                 url: '/Service/GetServiceDescription/?url=' + wsdlUrl.val(),
                 success: function (data) {
+                    $("#methodName").html("");
+
                     $.each(data, function (index, obj) {
                         //console.log(index, obj);
                         $('#methodName').append($('<option/>', {
@@ -110,7 +120,7 @@
                 },
                 traditional: true
             });
-        
+
         });
 
         var methodName = $('#methodName');

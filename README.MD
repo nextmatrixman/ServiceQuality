@@ -45,7 +45,7 @@ Start modifying the `ServiceController` and anything else!
 ## Use the App
 After you get it running...
 
-1. On the Index page, click "Craete New".
+1. On the Index page, click "Create New".
 2. Fill in the test name of your desire in the "Name" field (i.e. "test 1").
 3. Fill in the URL of the web service you want the test to ping and calculate response time of.
 4. If applicable, a dropdown menu of methods will appear. Select one.
@@ -57,4 +57,4 @@ After you get it running...
 * The "Stop" button stops this real-time monitoring; the "Start" button starts the real-time monitoring.
 10. Once the requests stop sending (either finished or error-ed out), the gauge and chart should stop moving. At this point...
 * If you've selected the "Capacity" test, click the "Statistics" button to populate the "Avg. Performance", "Capacity", and "Reliability". The "Distribution" chart will not populate.
-* If you've selected the "Distribution" test, there will be a "Distribution Base" field. Fill in a number for the base, this is for displaying the distribution in a power of the base request counts (i.e. if you fill in 5, it will show average response time of 5 requets, 25 requests, 125 requests... until the largest power of 5 less than the total requests sent).
+* If you've selected the "Distribution" test, there will be a "Distribution Base" field. Fill in a number for the base, this is for displaying the distribution in a power of the base request counts (i.e. if you fill in 5, it will show average response time of 5 requests, 25 requests, 125 requests... until the largest power of 5 less than the total requests sent).
