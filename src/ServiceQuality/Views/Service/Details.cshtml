@@ -73,14 +73,13 @@ window.MODEL_ID = @String.Format("{0}", Model.Id);
 			}
 			<div class="col-md-8">
 				<hr />
-				<h3>Graph</h3>
+				<h3>Test Graphs and Statistics</h3>
 				<button class="btn btn-primary" ng-click="start()">Start</button>
 				<button class="btn btn-danger" ng-click="stop()">Stop</button>
 				
 				@if (Model.Type == "Distribution")
                 {
                     <span>
-
                         Distribution Base:
                         <input type='text' size='5' ng-model='distributionBase' name='distributionBase' />&nbsp;&nbsp;
                     </span>
@@ -91,7 +90,7 @@ window.MODEL_ID = @String.Format("{0}", Model.Id);
 		</div>
 		<div class="row">
 			<div class="col-md-3">
-				<div just-gage class="gauge" id="test" min=0 max=gaugeLimit value="valueGauge" decimals=1 title="Performance" donut=false relative-gauge-size=true symbol="ms"></div>
+				<div just-gage class="gauge" id="test" min=0 max=gaugeLimit value="valueGauge" decimals=1 title="Response Time" donut=false relative-gauge-size=true symbol="ms"></div>
 			</div>
 			<div class="col-md-8">
 				<canvas id="line" class="chart chart-line" chart-data="performanceData" chart-labels="performanceLabels" chart-legend="true" chart-series="performanceSeries" chart-click="onClick"></canvas> 
@@ -99,15 +98,20 @@ window.MODEL_ID = @String.Format("{0}", Model.Id);
 		</div>
 		<div class="row">
 			<div class="col-md-8">
-				<p><strong>Avg. Performance: </strong>{{avgPerformance}} ms</p>
-				<p><strong>Capacity: </strong>{{capacity}} requests</p>
-				<p><strong>Reliability: </strong>{{reliability}} ms</p>
-				<p>
-					<div><strong>Distribution:</strong></div><br />
-					<div class="col-md-8">
-						<canvas id="line" class="chart chart-line" chart-data="distributionData" chart-labels="distributionLabels" chart-legend="true" chart-series="distributionSeries" chart-click="onClick"></canvas>
-					</div>
-				</p>
+				<p><h4>Avg. Performance: <strong>{{avgPerformance}} ms</strong></h4></p>
+				<p><h4>Capacity: <strong>{{capacity}} requests</strong></h4></p>
+				<p><h4>Reliability: <strong>{{reliability}} ms</strong></h4></p>
+				
+                @if (Model.Type == "Distribution")
+                {
+                    <p>
+                        <div><h4>Distribution:</h4></div><br />
+                        <div class="col-md-8">
+                            <canvas id="line" class="chart chart-line" chart-data="distributionData" chart-labels="distributionLabels" chart-legend="true" chart-series="distributionSeries" chart-click="onClick"></canvas>
+                        </div>
+                    </p>
+                }
+                
 			</div>
 		</div>
 	</div>
