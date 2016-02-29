@@ -1,22 +1,10 @@
 @model IEnumerable<ServiceQuality.Models.Service>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "History";
 }
 
-<!-- Main jumbotron for a primary marketing message or call to action -->
-<div class="jumbotron">
-    <div class="container">
-        <h1>Welcome to Service Quality</h1>
-        <p>
-            This is a web services testing application. You supply us the web service url, and our website will parse the WSDL and dynamically provide a list of methods and the method parameters offered by that web service. Users will then enter the parameter and number of requests to be made and our application will make those requests. Our site will measure performance and allow users to measure capacity, reliability and distribution performances.
-        </p>
-        <p>
-            <a class="btn btn-primary btn-lg" role="button" asp-action="Create">BEGIN TEST</a>
-        </p>
-    </div>
-</div>
-
+<h3>Test History</h3>
 
 <table class="table">
     <tr>
