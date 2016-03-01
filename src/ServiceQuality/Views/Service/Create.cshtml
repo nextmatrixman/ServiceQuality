@@ -4,11 +4,10 @@
     ViewData["Title"] = "Create";
 }
 
-<h2>Create</h2>
+<h3>Create New Test</h3>
 
 <form asp-action="Create" id="create-form">
     <div class="form-horizontal">
-        <h4>Service</h4>
         <hr />
         <div asp-validation-summary="ValidationSummary.ModelOnly" class="text-danger"></div>
         <div class="form-group">
@@ -21,63 +20,49 @@
         <div class="form-group">
             <label asp-for="Url" class="col-md-2 control-label">WSDL URL</label>
             <div class="col-md-10">
-                <p>Examples:</p>
-                <ul>
-                    <li>http://wsf.cdyne.com/WeatherWS/Weather.asmx?WSDL</li>
-                    <li>https://api.authorize.net/soap/v1/Service.asmx?WSDL</li>
-                    @*
-                        http://localhost:50145/Service/GetServiceDescription/?url=
-                        http://www.webservicex.net/ConvertTorque.asmx?WSDL
-
-                        Multiple Parameters
-                        http://webservicex.net/globalweather.asmx?wsdl
-                        http://www.webservicex.net/ConvertTorque.asmx?WSDL
-                    *@
-                </ul>
-
-                @*http://localhost:50145/Service/GetServiceDescription/?url=http://webservicex.net/globalweather.asmx?wsdl*@
-
                 <input asp-for="Url" class="form-control" value="" />
-                <span asp-validation-for="Url" class="text-danger" />
+                <span asp-validation-for="Url" class="text-danger"/>
             </div>
 
         </div>
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <button class="btn btn-primary" type="button" id="service_update">Update List</button>
+                <button class="btn btn-primary" type="button" id="service_update">Get Methods</button>
             </div>
         </div>
         <div class="form-group">
             <label for="methodName" class="col-md-2 control-label">Service Methods</label>
             <div class="col-md-10">
                 <select id="methodName" name="methodName" class="form-control"></select>
-
-                <div class="row">
-                    <div class="col-md-5" id="valueParent" style="display:none">
-                        <label for="methodValue" class="col-md-1 control-label" id="valueName">Value</label>
-                        <input id="methodValue" name="methodValue" class="form-control" />
-                        <input id="methodParam" name="methodParam" value="" style="display:none" />
-                    </div>
-                </div>
-                @*<input id="Url" name="Url" class="form-control" />
-                <span asp-validation-for="Url" class="text-danger" />*@
             </div>
 
         </div>
+
+        @* need some kind of for each on the parameters *@
+        <div class="form-group valueParent" style="display:none">
+            <label for="methodValue" class="col-md-2 control-label" id="valueName">Value</label>
+
+            <div class="col-md-5">
+                <input id="methodValue" name="methodValue" class="form-control" />
+                <input id="methodParam" name="methodParam" value="" style="display:none" />
+            </div>
+        </div>
+
+
         <div class="form-group">
-            <label asp-for="Requests" class="col-md-2 control-label">Requests To Make</label>
+            <label asp-for="Requests" class="col-md-2 control-label">Number of Requests</label>
             <div class="col-md-10">
                 <input asp-for="Requests" class="form-control" />
                 <span asp-validation-for="Requests" class="text-danger" />
             </div>
         </div>
         <div class="form-group">
-            <label asp-for="Type" class="col-md-2 control-label">Type</label>
+            <label asp-for="Type" class="col-md-2 control-label">Test Type</label>
             <div class="col-md-10">
                 <div class="input-group">
-                    <p><input name="Type" value="Capacity" type="radio" checked> Capacity</p>
-                    <p><input name="Type" value="Distribution" type="radio"> Distribution</p>
-                 </div>
+                    <p><input name="Type" value="Capacity" type="radio" checked> Capacity (Synchronous)</p>
+                    <p><input name="Type" value="Distribution" type="radio"> Distribution (Asynchronous)</p>
+                </div>
             </div>
         </div>
         <div class="form-group">
@@ -128,11 +113,11 @@
             var val = methodName.find('option:selected').data("param");
 
             //console.log(val);
+            $(".valueParent").toggle(!!val);
             $('#methodParam').val(val);
-            $("#valueParent").toggle(!!val);
             $("#valueName").text(val || "Value");
 
         });
 
-</script>
+    </script>
 }

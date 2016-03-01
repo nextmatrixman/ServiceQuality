@@ -24,10 +24,16 @@ namespace ServiceQuality.Controllers
             _context = context;
         }
 
+        [ActionName("History")]
+        public IActionResult History()
+        {
+            return View(_context.Services.ToList());
+        }
+
         // GET: Service
         public IActionResult Index()
         {
-            return View(_context.Services.ToList());
+            return View();
         }
 
         class Operation
@@ -129,17 +135,19 @@ namespace ServiceQuality.Controllers
             try
             {
                 Service service = _context.Services.Include(s => s.Results).Single(m => m.Id == id);
-                service.Results = service.Results.OrderBy(r => r.Order).ToList();
 
                 if (service == null)
                 {
                     return HttpNotFound();
                 }
+
                 var jsonSerializerSettings = new JsonSerializerSettings
                 {
                     PreserveReferencesHandling = PreserveReferencesHandling.Objects,
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                 };
+
+                service.Results = service.Results.OrderBy(r => r.Order).ToList();
 
                 return Json(service, jsonSerializerSettings);
             }
@@ -147,7 +155,36 @@ namespace ServiceQuality.Controllers
             {
                 return Json(null);
             }
+        }
 
+        /// <summary>
+        /// Lists all the services as JSON
+        /// </summary>
+        /// <returns></returns>
+        [ActionName("Services")]
+        public IActionResult Services()
+        {
+            try
+            {
+                var services = _context.Services.Include(s => s.Results);
+
+                if (services == null)
+                {
+                    return HttpNotFound();
+                }
+
+                var jsonSerializerSettings = new JsonSerializerSettings
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                };
+
+                return Json(services, jsonSerializerSettings);
+            }
+            catch (Exception e)
+            {
+                return Json(null);
+            }
         }
 
         // GET: Service/Create
