@@ -9,19 +9,24 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th style="width:15%">
+            <th style="width:40%">
                 @Html.DisplayNameFor(model => model.Name)
             </th>
-            <th style="width:5%;text-align:center">
+            <th style="width:10%">
                 @Html.DisplayNameFor(model => model.Requests)
             </th>
-            <th style="width:5%;text-align:center">
+            <th style="width:10%">
                 @Html.DisplayNameFor(model => model.Success)
             </th>
-            <th style="width:55%">
+            <th>
                 @Html.DisplayNameFor(model => model.Url)
             </th>
-            <th style="width:20%;text-align:center">Action</th>
+            <th style="width:10%">
+                Service Link
+            </th>
+            <th style="width:10%"></th>
+            <th style="width:10%"></th>
+            <th style="width:10%"></th>
         </tr>
     </thead>
 
@@ -40,7 +45,7 @@
             </td>
             <td>
                 <p class="keepShort">
-                    @Html.DisplayFor(modelItem => item.Url)
+                    <a href="@item.Url" target="_blank">Link</a>
                 </p>
             </td>
             <td align="center">
