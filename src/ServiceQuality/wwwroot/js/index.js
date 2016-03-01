@@ -22,6 +22,22 @@ angular.module('app', ['charts.ng.justgage', 'chart.js']).controller('AppCtrl', 
     $scope.capacity2 = '--';
     $scope.reliability2 = '--';
 
+    $scope.selectedService = {
+        Id: 0
+    };
+
+    $scope.allServices = [];
+
+    $scope.selectService = function () {
+        console.log($scope.selectedService);
+    }
+
+    $http.get('http://localhost:50145/Service/Services').success(function (response) {
+        $scope.allServices = response;
+        $scope.selectedService = $scope.allServices[0];
+        console.log($scope.allServices);
+    });
+
 	var promise = undefined;
 
 	var average = function (res, limit) {
@@ -115,7 +131,13 @@ angular.module('app', ['charts.ng.justgage', 'chart.js']).controller('AppCtrl', 
 	}
 
 	$scope.compare = function () {
-	    $http.get("/Service/Json/" + $scope.test1id)
+
+	    if ($scope.selectedService.Id < 1) {
+	        alert("Please select a service!");
+	        return;
+	    }
+
+	    $http.get("/Service/Json/" + $window.MODEL_ID)
     	  .success(function (response) {
     	    // response time received
     	    var res = response.Results;
@@ -140,7 +162,7 @@ angular.module('app', ['charts.ng.justgage', 'chart.js']).controller('AppCtrl', 
     	    $scope.distributionData1.push(distribution(res, $scope.compareBase));
     	  });
 
-	    $http.get("/Service/Json/" + $scope.test2id)
+	    $http.get("/Service/Json/" + $scope.selectedService.Id)
           .success(function (response) {
             // response time received
             var res = response.Results;
