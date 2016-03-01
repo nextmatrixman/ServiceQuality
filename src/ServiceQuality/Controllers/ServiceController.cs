@@ -24,10 +24,16 @@ namespace ServiceQuality.Controllers
             _context = context;
         }
 
+        [ActionName("History")]
+        public IActionResult History()
+        {
+            return View(_context.Services.ToList());
+        }
+
         // GET: Service
         public IActionResult Index()
         {
-            return View(_context.Services.ToList());
+            return View();
         }
 
         class Operation
