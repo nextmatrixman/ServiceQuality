@@ -417,5 +417,11 @@ namespace ServiceQuality.Controllers
             _context.SaveChanges();
             return RedirectToAction("History");
         }
+
+        // GET: Service/Compare
+        public IActionResult Compare()
+        {
+            return View();
+        }
     }
 }

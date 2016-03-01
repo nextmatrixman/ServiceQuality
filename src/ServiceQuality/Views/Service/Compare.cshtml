@@ -1,0 +1,73 @@
+@model ServiceQuality.Models.Service
+
+@{
+    ViewData["Title"] = "Tests Comparison";
+}
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/css/angular-chart.css" type="text/css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.js"></script>
+<script src="/js/angular-chart.js"></script>
+<script src="/js/raphael-2.1.4.min.js"></script>
+<script src="/js/justgage.js"></script>
+<script src="/js/ng-justgage.js"></script>
+<script src="/js/index.js"></script>
+
+<div ng-controller="AppCtrl">
+	<div class="container">
+        <div class="row">
+            <h3>Tests Comparison</h3>
+            <hr />
+            <div class="row">
+                <div class="col-md-12">
+                    <!--<p>Compare this test to:</p>-->
+                    Compare Test&nbsp;&nbsp;
+                    <select class="form-control" id="mirror" ng-model="selectedService1" ng-options="s.Name for s in allServices" style="display:inline;width:150px;">
+                        <option>--</option>
+                    </select>
+                    &nbsp;&nbsp;to Test&nbsp;&nbsp;
+                    <select class="form-control" id="mirror" ng-model="selectedService2" ng-options="s.Name for s in allServices" style="display:inline;width:150px;">
+                        <option>--</option>
+                    </select>
+                    &nbsp;&nbsp;with Distribution Base&nbsp;&nbsp;
+                    <input type="text" ng-model="compareBase" class="form-control" name="compareBase" style="display:inline;width:50px;"/>&nbsp;&nbsp;&nbsp;
+                    <button ng-click="compare()" class="btn btn-primary">Compare</button>
+                </div>
+            </div>
+            <div class="row">
+                <h3>Comparison Result</h3>
+                <div class="col-md-6">
+                    <h4>{{selectedService1.Name}}</h4>
+                    <p>{{selectedService1.Url}}</p>
+                    <h5>Avg. Performance: <strong>{{avgPerformance1}} ms</strong></h5>
+                    <h5>Capacity: <strong>{{capacity1}} requests</strong></h5>
+                    <h5>Reliability: <strong>{{reliability1}} ms</strong></h5>
+                    <p>
+                        <div><h5>Distribution:</h5></div><br />
+                        <div class="col-md-8">
+                            <canvas id="line" class="chart chart-line" chart-data="distributionData1" chart-labels="distributionLabels" chart-legend="true" chart-series="distributionSeries" chart-click="onClick"></canvas>
+                        </div>
+                    </p>
+                </div>
+
+                <div class="col-md-6">
+                    <h4>{{selectedService2.Name}}</h4>
+                    <p>{{selectedService2.Url}}</p>
+                    <h5>Avg. Performance: <strong>{{avgPerformance2}} ms</strong></h5>
+                    <h5>Capacity: <strong>{{capacity2}} requests</strong></h5>
+                    <h5>Reliability: <strong>{{reliability2}} ms</strong></h5>
+                    <p>
+                        <div><h5>Distribution:</h5></div><br />
+                        <div class="col-md-8">
+                            <canvas id="line" class="chart chart-line" chart-data="distributionData2" chart-labels="distributionLabels" chart-legend="true" chart-series="distributionSeries" chart-click="onClick"></canvas>
+                        </div>
+                    </p>
+                </div>
+            </div>
+        </div>
+	</div>
+</div>
+<p>
+    <a asp-action="History">Back to List</a>
+</p>

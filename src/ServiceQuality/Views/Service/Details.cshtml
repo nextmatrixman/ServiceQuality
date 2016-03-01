@@ -117,57 +117,6 @@
                 
 			</div>
 		</div>
-
-        <div class="row">
-            <h3>Tests Comparison</h3>
-            <hr />
-            <div class="row">
-                <div class="col-md-12">
-                    <p>Compare this test to:</p>
-                    <select class="form-control" id="mirror"
-                            ng-change="compare()"
-                            ng-model="selectedService"
-                            ng-options="s.Name for s in allServices">
-                        <option>--</option>
-                    </select>
-                    
-                    <p>Distribution Base:</p>
-                    <input type="text" size="5" ng-model="compareBase" class="form-control" name="compareBase" />
-                </div>
-            </div>
-            <div class="row">
-                <h3>Comparison Result</h3>
-
-                <div class="col-md-6">
-                    <h4>Test @Model.Id</h4>
-                    <p>@Model.Url</p>
-                    <h5>Avg. Performance: <strong>{{avgPerformance1}} ms</strong></h5>
-                    <h5>Capacity: <strong>{{capacity1}} requests</strong></h5>
-                    <h5>Reliability: <strong>{{reliability1}} ms</strong></h5>
-                    <p>
-                        <div><h4>Distribution:</h4></div><br />
-                        <div class="col-md-8">
-                            <canvas id="line" class="chart chart-line" chart-data="distributionData1" chart-labels="distributionLabels" chart-legend="true" chart-series="distributionSeries" chart-click="onClick"></canvas>
-                        </div>
-                    </p>
-                </div>
-
-                <div class="col-md-6">
-                    <h4>{{selectedService.Name}}</h4>
-                    <p>{{selectedService.Url}}</p>
-                    <h5>Avg. Performance: <strong>{{avgPerformance2}} ms</strong></h5>
-                    <h5>Capacity: <strong>{{capacity2}} requests</strong></h5>
-                    <h5>Reliability: <strong>{{reliability2}} ms</strong></h5>
-                    <p>
-                        <div><h4>Distribution:</h4></div><br />
-                        <div class="col-md-8">
-                            <canvas id="line" class="chart chart-line" chart-data="distributionData2" chart-labels="distributionLabels" chart-legend="true" chart-series="distributionSeries" chart-click="onClick"></canvas>
-                        </div>
-                    </p>
-                </div>
-            </div>
-        </div>
-
 	</div>
 </div>
 <p>

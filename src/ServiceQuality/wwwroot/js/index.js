@@ -22,19 +22,25 @@ angular.module('app', ['charts.ng.justgage', 'chart.js']).controller('AppCtrl', 
     $scope.capacity2 = '--';
     $scope.reliability2 = '--';
 
-    $scope.selectedService = {
+    $scope.selectedService1 = {
+        Id: 0
+    };
+
+    $scope.selectedService2 = {
         Id: 0
     };
 
     $scope.allServices = [];
 
     $scope.selectService = function () {
-        console.log($scope.selectedService);
+        console.log($scope.selectedService1);
+        console.log($scope.selectedService2);
     }
 
     $http.get('/Service/Services').success(function (response) {
         $scope.allServices = response;
-        $scope.selectedService = $scope.allServices[0];
+        $scope.selectedService1 = $scope.allServices[0];
+        $scope.selectedService2 = $scope.allServices[1];
         console.log($scope.allServices);
     });
 
@@ -123,6 +129,9 @@ angular.module('app', ['charts.ng.justgage', 'chart.js']).controller('AppCtrl', 
 	    var power = 1;
 	    var dataPoint = Math.pow(base, power);
 
+	    // reset distribution label
+	    $scope.distributionLabels = [];
+
 	    while (dataPoint < res.length) {
 	        $scope.distributionLabels.push(dataPoint);
 	        power++;
@@ -131,13 +140,11 @@ angular.module('app', ['charts.ng.justgage', 'chart.js']).controller('AppCtrl', 
 	}
 
 	$scope.compare = function () {
+	    // clear data sets
+	    $scope.distributionData1 = [];
+	    $scope.distributionData2 = [];
 
-	    if ($scope.selectedService.Id < 1) {
-	        alert("Please select a service!");
-	        return;
-	    }
-
-	    $http.get("/Service/Json/" + $window.MODEL_ID)
+	    $http.get("/Service/Json/" + $scope.selectedService1.Id)
     	  .success(function (response) {
     	    // response time received
     	    var res = response.Results;
@@ -162,7 +169,7 @@ angular.module('app', ['charts.ng.justgage', 'chart.js']).controller('AppCtrl', 
     	    $scope.distributionData1.push(distribution(res, $scope.compareBase));
     	  });
 
-	    $http.get("/Service/Json/" + $scope.selectedService.Id)
+	    $http.get("/Service/Json/" + $scope.selectedService2.Id)
           .success(function (response) {
             // response time received
             var res = response.Results;

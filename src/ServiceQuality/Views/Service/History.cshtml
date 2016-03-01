@@ -9,19 +9,19 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>
+            <th style="width:15%">
                 @Html.DisplayNameFor(model => model.Name)
             </th>
-            <th>
+            <th style="width:5%;text-align:center">
                 @Html.DisplayNameFor(model => model.Requests)
             </th>
-            <th>
+            <th style="width:5%;text-align:center">
                 @Html.DisplayNameFor(model => model.Success)
             </th>
-            <th>
+            <th style="width:55%">
                 @Html.DisplayNameFor(model => model.Url)
             </th>
-            <th></th>
+            <th style="width:20%;text-align:center">Action</th>
         </tr>
     </thead>
 
@@ -30,14 +30,12 @@
     {
         <tr>
             <td>
-                <p class="keepShort">
-                    <strong>@Html.DisplayFor(modelItem => item.Name)</strong>
-                </p>
+                <strong>@Html.DisplayFor(modelItem => item.Name)</strong>
             </td>
-            <td>
+            <td align="center">
                 @Html.DisplayFor(modelItem => item.Requests)
             </td>
-            <td>
+            <td align="center">
                 @Html.DisplayFor(modelItem => item.Success)
             </td>
             <td>
@@ -45,7 +43,7 @@
                     @Html.DisplayFor(modelItem => item.Url)
                 </p>
             </td>
-            <td>
+            <td align="center">
                 <a class="btn-sm btn-info" asp-action="Details" asp-route-id="@item.Id">View</a>
                 <a class="btn-sm btn-primary" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
                 <a class="btn-sm btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
