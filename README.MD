@@ -58,3 +58,10 @@ After you get it running...
 10. Once the requests stop sending (either finished or error-ed out), the gauge and chart should stop moving. At this point...
 * If you've selected the "Capacity" test, click the "Statistics" button to populate the "Avg. Performance", "Capacity", and "Reliability". The "Distribution" chart will not populate.
 * If you've selected the "Distribution" test, there will be a "Distribution Base" field. Fill in a number for the base, this is for displaying the distribution in a power of the base request counts (i.e. if you fill in 5, it will show average response time of 5 requests, 25 requests, 125 requests... until the largest power of 5 less than the total requests sent).
+
+To compare between test results...
+
+1. Click "Compare Tests" on the top
+2. Use the 2 dropdown menu to selet existing test results (you might have to wait for a bit for them to populate)
+3. Fill in a number for the "Distribution Base", this will be used to calculate and populate the distribution data points
+4. Click "Compare" and see the various tests results list side by side
