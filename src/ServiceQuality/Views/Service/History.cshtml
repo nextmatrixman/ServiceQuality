@@ -9,19 +9,21 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>
+            <th style="width:40%">
                 @Html.DisplayNameFor(model => model.Name)
             </th>
-            <th>
+            <th style="width:10%">
                 @Html.DisplayNameFor(model => model.Requests)
             </th>
-            <th>
+            <th style="width:10%">
                 @Html.DisplayNameFor(model => model.Success)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Url)
+            <th style="width:10%">
+                Service Link
             </th>
-            <th></th>
+            <th style="width:10%"></th>
+            <th style="width:10%"></th>
+            <th style="width:10%"></th>
         </tr>
     </thead>
 
@@ -42,12 +44,16 @@
             </td>
             <td>
                 <p class="keepShort">
-                    @Html.DisplayFor(modelItem => item.Url)
+                    <a href="@item.Url" target="_blank">Link</a>
                 </p>
             </td>
             <td>
                 <a class="btn-sm btn-info" asp-action="Details" asp-route-id="@item.Id">View</a>
+            </td>
+            <td>
                 <a class="btn-sm btn-primary" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+            </td>
+            <td>
                 <a class="btn-sm btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>
