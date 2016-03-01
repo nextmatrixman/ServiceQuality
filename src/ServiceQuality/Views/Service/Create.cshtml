@@ -34,19 +34,21 @@
             <label for="methodName" class="col-md-2 control-label">Service Methods</label>
             <div class="col-md-10">
                 <select id="methodName" name="methodName" class="form-control"></select>
-
-                <div class="row">
-                    <div class="col-md-5" id="valueParent" style="display:none">
-                        <label for="methodValue" class="col-md-1 control-label" id="valueName">Value</label>
-                        <input id="methodValue" name="methodValue" class="form-control" />
-                        <input id="methodParam" name="methodParam" value="" style="display:none" />
-                    </div>
-                </div>
-                @*<input id="Url" name="Url" class="form-control" />
-                    <span asp-validation-for="Url" class="text-danger" />*@
             </div>
 
         </div>
+
+        @* need some kind of for each on the parameters *@
+        <div class="form-group valueParent" style="display:none">
+            <label for="methodValue" class="col-md-2 control-label" id="valueName">Value</label>
+
+            <div class="col-md-5">
+                <input id="methodValue" name="methodValue" class="form-control" />
+                <input id="methodParam" name="methodParam" value="" style="display:none" />
+            </div>
+        </div>
+
+
         <div class="form-group">
             <label asp-for="Requests" class="col-md-2 control-label">Number of Requests</label>
             <div class="col-md-10">
@@ -111,8 +113,8 @@
             var val = methodName.find('option:selected').data("param");
 
             //console.log(val);
+            $(".valueParent").toggle(!!val);
             $('#methodParam').val(val);
-            $("#valueParent").toggle(!!val);
             $("#valueName").text(val || "Value");
 
         });
