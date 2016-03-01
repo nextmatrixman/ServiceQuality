@@ -32,7 +32,7 @@ angular.module('app', ['charts.ng.justgage', 'chart.js']).controller('AppCtrl', 
         console.log($scope.selectedService);
     }
 
-    $http.get('http://localhost:50145/Service/Services').success(function (response) {
+    $http.get('/Service/Services').success(function (response) {
         $scope.allServices = response;
         $scope.selectedService = $scope.allServices[0];
         console.log($scope.allServices);
