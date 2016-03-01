@@ -380,7 +380,7 @@ namespace ServiceQuality.Controllers
             {
                 _context.Update(service);
                 _context.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("History");
             }
             return View(service);
         }
@@ -415,7 +415,7 @@ namespace ServiceQuality.Controllers
 
             _context.Services.Remove(service);
             _context.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("History");
         }
     }
 }
