@@ -23,11 +23,11 @@
                 <div class="col-md-12">
                     <!--<p>Compare this test to:</p>-->
                     Compare Test&nbsp;&nbsp;
-                    <select class="form-control" id="mirror" ng-model="selectedService1" ng-options="s.Name for s in allServices" style="display:inline;width:150px;">
+                    <select ng-change="compare()" class="form-control" id="mirror" ng-model="selectedService1" ng-options="s.Name for s in allServices" style="display:inline;width:150px;">
                         <option>--</option>
                     </select>
                     &nbsp;&nbsp;to Test&nbsp;&nbsp;
-                    <select class="form-control" id="mirror" ng-model="selectedService2" ng-options="s.Name for s in allServices" style="display:inline;width:150px;">
+                    <select ng-change="compare()" class="form-control" id="mirror" ng-model="selectedService2" ng-options="s.Name for s in allServices" style="display:inline;width:150px;">
                         <option>--</option>
                     </select>
                     &nbsp;&nbsp;with Distribution Base&nbsp;&nbsp;

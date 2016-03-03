@@ -31,24 +31,18 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="methodName" class="col-md-2 control-label">Service Methods</label>
+            <label for="methodSelect" class="col-md-2 control-label">Service Methods</label>
             <div class="col-md-10">
-                <select id="methodName" name="methodName" class="form-control"></select>
+                <select id="methodSelect" name="methodSelect" class="form-control"></select>
             </div>
 
         </div>
 
-        @* need some kind of for each on the parameters *@
-        <div class="form-group valueParent" style="display:none">
-            <label for="methodValue" class="col-md-2 control-label" id="valueName">Value</label>
-
-            <div class="col-md-5">
-                <input id="methodValue" name="methodValue" class="form-control" />
-                <input id="methodParam" name="methodParam" value="" style="display:none" />
-            </div>
+        <div class="parameterParent">
+            @* for each p in parameters *@
+            <noscript>Please enable JavaScript to use this application.</noscript>
         </div>
-
-
+        
         <div class="form-group">
             <label asp-for="Requests" class="col-md-2 control-label">Number of Requests</label>
             <div class="col-md-10">
@@ -84,38 +78,56 @@
 
     <script type="text/javascript">
         var wsdlUrl = $('#Url');
-        var url = $('#Url');
+        var parameterInputs = $(".parameterParent");
+        
+        function getName(param) {
+            return param.Name;
+        }
 
         $('#service_update').click(function (e) {
             $.ajax({
                 type: 'GET',
                 url: '/Service/GetServiceDescription/?url=' + wsdlUrl.val(),
                 success: function (data) {
-                    $("#methodName").html("");
+                    $("#methodSelect").html("");
 
                     $.each(data, function (index, obj) {
-                        //console.log(index, obj);
-                        $('#methodName').append($('<option/>', {
+                        var params = $.map(obj.Parameters, getName);
+                        console.log(params);
+
+                        $('#methodSelect').append($('<option/>', {
                             value: obj.Method,
-                            text: obj.Method + (obj.Parameter ? ' - ' + obj.Parameter : ''),
-                        }).data("param", obj.Parameter));
+                            text: obj.Method + (params.length > 0 ? ' - ' + params.join(', ') : ''),
+                        }).data("param", $.map(obj.Parameters, getName)));
                     });
 
-                    methodName.blur();
+                    methodSelect.blur();
                 },
                 traditional: true
             });
 
         });
 
-        var methodName = $('#methodName');
-        methodName.on('change blur', function () {
-            var val = methodName.find('option:selected').data("param");
+        var methodSelect = $('#methodSelect');
+        methodSelect.on('change blur', function () {
+            var vals = methodSelect.find('option:selected').data("param");
+            var html = [];
 
-            //console.log(val);
-            $(".valueParent").toggle(!!val);
-            $('#methodParam').val(val);
-            $("#valueName").text(val || "Value");
+            parameterInputs.html("");
+
+            $(vals).each(function (idx, param) {
+                html.push('<div class="form-group">');
+                html.push('<label for="methodValue[' + param + ']" class="col-md-2 control-label">' + param + '</label>');
+
+                html.push('<div class="col-md-5">' +
+                    '<input id="methodValue[' + param + ']" name="methodValue[' + param + ']" class="form-control" placeholder="' + param + '" />' +
+                    '</div>'
+                );
+
+                html.push('</div>');
+
+                parameterInputs.html(html.join(""));
+            });
 
         });
 
