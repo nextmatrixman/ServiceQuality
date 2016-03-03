@@ -12,6 +12,7 @@ using System;
 using Newtonsoft.Json;
 using System.Xml;
 using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 namespace ServiceQuality.Controllers
 {
@@ -38,9 +39,14 @@ namespace ServiceQuality.Controllers
 
         class Operation
         {
-            public String Type { get; set; }
             public String Method { get; set; }
-            public String Parameter { get; set; }
+            public List<Parameter> Parameters { get; set; }
+        }
+
+        class Parameter
+        {
+            public String Name { get; set; }
+            public String Type { get; set; }
         }
 
         [ActionName("GetServiceDescription")]
@@ -51,62 +57,53 @@ namespace ServiceQuality.Controllers
             try
             {
 
-            var x = XDocument.Load(url);
-            XNamespace wsdl = "http://schemas.xmlsoap.org/wsdl/";
-            XNamespace s = "http://www.w3.org/2001/XMLSchema";
+                var x = XDocument.Load(url);
+                XNamespace wsdl = "http://schemas.xmlsoap.org/wsdl/";
+                XNamespace s = "http://www.w3.org/2001/XMLSchema";
 
-            var schema = x.Root
-                .Element(wsdl + "types")
-                .Element(s + "schema");
+                var schema = x.Root
+                    .Element(wsdl + "types")
+                    .Element(s + "schema");
 
-            var elements = schema.Elements(s + "element"); ;
+                var elements = schema.Elements(s + "element");
 
-            Func<XElement, string> getName = el => el.Attribute("name").Value;
-            Func<XElement, string> getType = el => el.Attribute("type").Value.Replace("s:", "");
+                Func<XElement, string> getName = el => el.Attribute("name").Value;
+                Func<XElement, string> getType = el => el.Attribute("type").Value.Replace("s:", "");
 
-            var names = from el in elements
-                        let name = getName(el)
-                        where el.HasAttributes
-                            && !name.EndsWith("Response")
-                            && !name.EndsWith("Return")
-                            && !name.StartsWith("Array")
-                            && name.Contains("Get")
-                        select name;
+                var names = from el in elements
+                            let name = getName(el)
+                            where el.HasAttributes
+                                && !name.EndsWith("Response")
+                                && !name.EndsWith("Return")
+                                && !name.StartsWith("Array")
+                                && char.IsUpper(name[0])
+                            select name;
 
-            var d = new List<Operation>();
+                var operations = new List<Operation>();
 
-            foreach (string n in names)
-            {
-                var method = elements.Single(el => getName(el) == n);
-
-                var parameters = from par in method.Descendants(s + "element")
-                                 let name = getName(par)
-                                 let type = getType(par)
-                                 select new Operation { Method = n, Parameter = name, Type = type };
-
-                if (parameters.Count() == 0)
+                foreach (string n in names)
                 {
-                    d.Add(new Operation
+                    var method = elements.Single(el => getName(el) == n);
+
+                    var parameters = from par in method.Descendants(s + "element")
+                                     let name = getName(par)
+                                     let type = getType(par)
+                                     select new Parameter { Name = name, Type = type };
+
+                    operations.Add(new Operation
                     {
-                        Method = n
+                        Method = n,
+                        Parameters = parameters.ToList()
                     });
-                }
 
-                foreach (Operation o in parameters)
-                {
-                    d.Add(o);
                 }
-
-            }
-                return new JsonResult(d);
+                return new JsonResult(operations);
 
             }
             catch (Exception e)
             {
-
+                return new JsonResult("");
             }
-
-            return new JsonResult("");
 
         }
 
@@ -196,7 +193,7 @@ namespace ServiceQuality.Controllers
         // POST: Service/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Service service, String methodName, String methodParam, String methodValue)
+        public async Task<IActionResult> Create(Service service, String methodSelect)
         {
             if (!service.HasValidType())
             {
@@ -206,11 +203,10 @@ namespace ServiceQuality.Controllers
             if (ModelState.IsValid)
             {
                 service.Success = false;
-
-                // http://wsf.cdyne.com/WeatherWS/Weather.asmx/GetCityForecastByZIP?zip=43434
+                List<string> p = FindParameters();
 
                 service.Url = service.Url.Replace("?", "").Replace("WSDL", "");
-                service.Url = service.Url + "/" + methodName + "?" + methodParam + "=" + methodValue;
+                service.Url = service.Url + "/" + methodSelect + "?" + String.Join("&", p);
 
                 _context.Services.Add(service);
                 _context.SaveChanges();
@@ -219,6 +215,31 @@ namespace ServiceQuality.Controllers
             }
 
             return View(service);
+        }
+
+        private List<string> FindParameters()
+        {
+            // http://wsf.cdyne.com/WeatherWS/Weather.asmx/GetCityForecastByZIP?zip=43434
+
+            // all the form's inputs that are part of the methodValue group
+            var keys = from k in HttpContext.Request.Form.Keys where k.StartsWith("methodValue") select k;
+
+            var parameters = new List<String>();
+
+            foreach (var k in keys)
+            {
+                // turn methodValue[abc] to abc
+                Match match = Regex.Match(k, @"methodValue\[(.*)\]", RegexOptions.IgnoreCase);
+
+                if (match.Success)
+                {
+                    var name = match.Groups[1].Value;
+                    var val = HttpContext.Request.Form[k];
+                    parameters.Add(name + "=" + val);
+                }
+            }
+
+            return parameters;
         }
 
         [ActionName("RunTest")]
@@ -272,13 +293,13 @@ namespace ServiceQuality.Controllers
 
                         //if (response.IsSuccessStatusCode)
                         //{
-                            if (i == service.Requests - 1)
-                            {
-                                service.Success = true;
-                            }
+                        if (i == service.Requests - 1)
+                        {
+                            service.Success = true;
+                        }
 
-                            result.End = DateTime.Now;
-                            _context.SaveChanges();
+                        result.End = DateTime.Now;
+                        _context.SaveChanges();
                         //}
 
                     }
@@ -325,9 +346,9 @@ namespace ServiceQuality.Controllers
 
                             //if (response.IsSuccessStatusCode)
                             //{
-                                result.End = DateTime.Now;
-                                finishedResults.Add(result);
-                                _context.SaveChanges();
+                            result.End = DateTime.Now;
+                            finishedResults.Add(result);
+                            _context.SaveChanges();
                             //}
 
                             return Task.FromResult(result.Id);
@@ -343,7 +364,8 @@ namespace ServiceQuality.Controllers
             try
             {
                 Task.WaitAll(results.ToArray());
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 //View(e);
             }
